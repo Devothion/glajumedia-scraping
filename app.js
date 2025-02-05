@@ -339,6 +339,8 @@ async function buscarPalabrasClave(registros) {
   });
   const page = await browser.newPage();
 
+  page.on('console', (msg) => console.log('PAGE LOG:', msg.text()));
+
   const url = scrapingUrl;
   await page.goto(url, { waitUntil: 'networkidle2' });
 
