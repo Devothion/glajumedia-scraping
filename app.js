@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer-core');
+const puppeteer = require('puppeteer');
 //const { Datos, CorreosEnviados } = require('./database/models');
 //const nodemailer = require('nodemailer');
 
@@ -419,13 +419,13 @@ const puppeteer = require('puppeteer-core');
 (async () => {
   try {
     const browser = await puppeteer.launch({
-      executablePath: '/usr/bin/chromium-browser',
+      //executablePath: 'C:\\Users\\JULIO CESAR\\Desktop\\project-scraping\\browser\\Application\\msedge.exe',
       headless: true, 
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
     const page = await browser.newPage();
-    await page.goto('https://www.google.com');
+    await page.goto('https://www.google.com', { timeout : 0 });
 
     const title = await page.title();
     console.log(`Título de la página: ${title}`);
