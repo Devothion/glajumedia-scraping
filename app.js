@@ -1,332 +1,332 @@
 const puppeteer = require('puppeteer-core');
-const { Datos, CorreosEnviados } = require('./database/models');
-const nodemailer = require('nodemailer');
+//const { Datos, CorreosEnviados } = require('./database/models');
+//const nodemailer = require('nodemailer');
 
-require('dotenv').config();
+//require('dotenv').config();
 
 /**
  * Importación de variables de entorno
  */
-const scrapingUrl = process.env.SCRAPING_URL;
-const emailHost = process.env.EMAIL_SMTP_HOST;
-const emailPort = process.env.EMAIL_SMTP_PORT;
-const emailSecure = process.env.EMAIL_SMTP_SECURE;
-const emailUser = process.env.EMAIL_SMTP_USER;
-const emailPass = process.env.EMAIL_SMTP_PASS;
-const emailTo = process.env.EMAIL_ADDRESS_TO;
+// const scrapingUrl = process.env.SCRAPING_URL;
+// const emailHost = process.env.EMAIL_SMTP_HOST;
+// const emailPort = process.env.EMAIL_SMTP_PORT;
+// const emailSecure = process.env.EMAIL_SMTP_SECURE;
+// const emailUser = process.env.EMAIL_SMTP_USER;
+// const emailPass = process.env.EMAIL_SMTP_PASS;
+// const emailTo = process.env.EMAIL_ADDRESS_TO;
 
 /**
  * Palabras clave para buscar en la página
  */
-const keywordsObjetivo = ['Servicio', 'Licencia', 'Web', 'Aplicación', 'Adobe', 'Nube'];
+//const keywordsObjetivo = ['Servicio', 'Licencia', 'Web', 'Aplicación', 'Adobe', 'Nube'];
 
 /**
  * Configuración del transporte de correo
  */
-const transport = nodemailer.createTransport({
-  service: 'gmail',
-  host: emailHost,
-  port: emailPort,
-  secure: emailSecure,
-  auth: {
-    user: emailUser,
-    pass: emailPass
-  }
-});
+// const transport = nodemailer.createTransport({
+//   service: 'gmail',
+//   host: emailHost,
+//   port: emailPort,
+//   secure: emailSecure,
+//   auth: {
+//     user: emailUser,
+//     pass: emailPass
+//   }
+// });
 
 /**
  * Función para verificar si un correo ya ha sido enviado
  */
-async function correoYaEnviado(nomenclatura, palabra, tipo) {
-  const existe = await CorreosEnviados.findOne({
-    where: { nomenclatura, palabra, tipo }
-  });
-  return !!existe;
-}
+// async function correoYaEnviado(nomenclatura, palabra, tipo) {
+//   const existe = await CorreosEnviados.findOne({
+//     where: { nomenclatura, palabra, tipo }
+//   });
+//   return !!existe;
+// }
 
 /**
  * Función para enviar el correo cuando se encuentra una palabra clave
  */
-async function enviarCorreo(tipo, palabra, registro) {
+// async function enviarCorreo(tipo, palabra, registro) {
 
-  const yaEnviado = await correoYaEnviado(registro.Nomenclatura, palabra, tipo);
+//   const yaEnviado = await correoYaEnviado(registro.Nomenclatura, palabra, tipo);
 
-  /**
-   * Si el correo ya ha sido enviado, no se envía de nuevo
-   */
-  if (yaEnviado) {
-    console.log(`⏩ Correo ya enviado previamente para "${palabra}" en ${tipo}, no se enviará de nuevo.`);
-    return;
-  }
+//   /**
+//    * Si el correo ya ha sido enviado, no se envía de nuevo
+//    */
+//   if (yaEnviado) {
+//     console.log(`⏩ Correo ya enviado previamente para "${palabra}" en ${tipo}, no se enviará de nuevo.`);
+//     return;
+//   }
 
-  /**
-   * Configuración del correo que se enviará
-   */
-  const mailOptions = {
-    from: emailUser,
-    to: emailTo,
-    subject: 'Palabra encontrada',
-    html: `<head>
-    <style type="text/css">
-      body {
-        -webkit-text-size-adjust: 100% !important;
-        -ms-text-size-adjust: 100% !important;
-        -webkit-font-smoothing: antialiased !important;
-      }
-      img {
-        border: 0 !important;
-        outline: none !important;
-      }
-      p {
-        margin: 0px !important;
-        padding: 0px !important;
-      }
-      table {
-        border-collapse: collapse;
-        mso-table-lspace: 0px;
-        mso-table-rspace: 0px;
-      }
-      td,
-      a,
-      span {
-        border-collapse: collapse;
-        mso-line-height-rule: exactly;
-      }
-      .ExternalClass * {
-        line-height: 100%;
-      }
-      span.MsoHyperlink {
-        mso-style-priority: 99;
-        color: inherit;
-      }
-      span.MsoHyperlinkFollowed {
-        mso-style-priority: 99;
-        color: inherit;
-      }
-    </style>
-    <style
-      media="only screen and (min-width:481px) and (max-width:599px)"
-      type="text/css"
-    >
-      @media only screen and (min-width: 481px) and (max-width: 599px) {
-        table[class="em_main_table"] {
-          width: 100% !important;
-        }
-        table[class="em_wrapper"] {
-          width: 100% !important;
-        }
-        td[class="em_hide"],
-        br[class="em_hide"] {
-          display: none !important;
-        }
-        img[class="em_full_img"] {
-          width: 100% !important;
-          height: auto !important;
-        }
-        td[class="em_align_cent"] {
-          text-align: center !important;
-        }
-        td[class="em_aside"] {
-          padding-left: 10px !important;
-          padding-right: 10px !important;
-        }
-        td[class="em_height"] {
-          height: 20px !important;
-        }
-        td[class="em_font"] {
-          font-size: 14px !important;
-        }
-        td[class="em_align_cent1"] {
-          text-align: center !important;
-          padding-bottom: 10px !important;
-        }
-      }
-    </style>
-    <style media="only screen and (max-width:480px)" type="text/css">
-      @media only screen and (max-width: 480px) {
-        table[class="em_main_table"] {
-          width: 100% !important;
-        }
-        table[class="em_wrapper"] {
-          width: 100% !important;
-        }
-        td[class="em_hide"],
-        br[class="em_hide"],
-        span[class="em_hide"] {
-          display: none !important;
-        }
-        img[class="em_full_img"] {
-          width: 100% !important;
-          height: auto !important;
-        }
-        td[class="em_align_cent"] {
-          text-align: center !important;
-        }
-        td[class="em_align_cent1"] {
-          text-align: center !important;
-          padding-bottom: 10px !important;
-        }
-        td[class="em_height"] {
-          height: 20px !important;
-        }
-        td[class="em_aside"] {
-          padding-left: 10px !important;
-          padding-right: 10px !important;
-        }
-        td[class="em_font"] {
-          font-size: 14px !important;
-          line-height: 28px !important;
-        }
-        span[class="em_br"] {
-          display: block !important;
-        }
-      }
-    </style>
-  </head>
-  <body style="margin: 0px; padding: 0px" bgcolor="#ffffff">
-    <table
-      border="0"
-      width="640"
-      cellspacing="0"
-      cellpadding="0"
-      bgcolor="#ffffff"
-      align="center"
-    >
-      <tr>
-        <td align="center" valign="top" bgcolor="#ffffff">
-          <table
-            width="600"
-            cellpadding="0"
-            cellspacing="0"
-            border="0"
-            align="center"
-            class="em_main_table"
-            style="table-layout: fixed"
-          >
+//   /**
+//    * Configuración del correo que se enviará
+//    */
+//   const mailOptions = {
+//     from: emailUser,
+//     to: emailTo,
+//     subject: 'Palabra encontrada',
+//     html: `<head>
+//     <style type="text/css">
+//       body {
+//         -webkit-text-size-adjust: 100% !important;
+//         -ms-text-size-adjust: 100% !important;
+//         -webkit-font-smoothing: antialiased !important;
+//       }
+//       img {
+//         border: 0 !important;
+//         outline: none !important;
+//       }
+//       p {
+//         margin: 0px !important;
+//         padding: 0px !important;
+//       }
+//       table {
+//         border-collapse: collapse;
+//         mso-table-lspace: 0px;
+//         mso-table-rspace: 0px;
+//       }
+//       td,
+//       a,
+//       span {
+//         border-collapse: collapse;
+//         mso-line-height-rule: exactly;
+//       }
+//       .ExternalClass * {
+//         line-height: 100%;
+//       }
+//       span.MsoHyperlink {
+//         mso-style-priority: 99;
+//         color: inherit;
+//       }
+//       span.MsoHyperlinkFollowed {
+//         mso-style-priority: 99;
+//         color: inherit;
+//       }
+//     </style>
+//     <style
+//       media="only screen and (min-width:481px) and (max-width:599px)"
+//       type="text/css"
+//     >
+//       @media only screen and (min-width: 481px) and (max-width: 599px) {
+//         table[class="em_main_table"] {
+//           width: 100% !important;
+//         }
+//         table[class="em_wrapper"] {
+//           width: 100% !important;
+//         }
+//         td[class="em_hide"],
+//         br[class="em_hide"] {
+//           display: none !important;
+//         }
+//         img[class="em_full_img"] {
+//           width: 100% !important;
+//           height: auto !important;
+//         }
+//         td[class="em_align_cent"] {
+//           text-align: center !important;
+//         }
+//         td[class="em_aside"] {
+//           padding-left: 10px !important;
+//           padding-right: 10px !important;
+//         }
+//         td[class="em_height"] {
+//           height: 20px !important;
+//         }
+//         td[class="em_font"] {
+//           font-size: 14px !important;
+//         }
+//         td[class="em_align_cent1"] {
+//           text-align: center !important;
+//           padding-bottom: 10px !important;
+//         }
+//       }
+//     </style>
+//     <style media="only screen and (max-width:480px)" type="text/css">
+//       @media only screen and (max-width: 480px) {
+//         table[class="em_main_table"] {
+//           width: 100% !important;
+//         }
+//         table[class="em_wrapper"] {
+//           width: 100% !important;
+//         }
+//         td[class="em_hide"],
+//         br[class="em_hide"],
+//         span[class="em_hide"] {
+//           display: none !important;
+//         }
+//         img[class="em_full_img"] {
+//           width: 100% !important;
+//           height: auto !important;
+//         }
+//         td[class="em_align_cent"] {
+//           text-align: center !important;
+//         }
+//         td[class="em_align_cent1"] {
+//           text-align: center !important;
+//           padding-bottom: 10px !important;
+//         }
+//         td[class="em_height"] {
+//           height: 20px !important;
+//         }
+//         td[class="em_aside"] {
+//           padding-left: 10px !important;
+//           padding-right: 10px !important;
+//         }
+//         td[class="em_font"] {
+//           font-size: 14px !important;
+//           line-height: 28px !important;
+//         }
+//         span[class="em_br"] {
+//           display: block !important;
+//         }
+//       }
+//     </style>
+//   </head>
+//   <body style="margin: 0px; padding: 0px" bgcolor="#ffffff">
+//     <table
+//       border="0"
+//       width="640"
+//       cellspacing="0"
+//       cellpadding="0"
+//       bgcolor="#ffffff"
+//       align="center"
+//     >
+//       <tr>
+//         <td align="center" valign="top" bgcolor="#ffffff">
+//           <table
+//             width="600"
+//             cellpadding="0"
+//             cellspacing="0"
+//             border="0"
+//             align="center"
+//             class="em_main_table"
+//             style="table-layout: fixed"
+//           >
 
-            <tr>
-              <td height="30" class="em_height">&nbsp;</td>
-            </tr>
+//             <tr>
+//               <td height="30" class="em_height">&nbsp;</td>
+//             </tr>
 
-            <tr>
-              <td
-                height="1"
-                bgcolor="#d8e4f0"
-                style="font-size: 0px; line-height: 0px"
-              ></td>
-            </tr>
+//             <tr>
+//               <td
+//                 height="1"
+//                 bgcolor="#d8e4f0"
+//                 style="font-size: 0px; line-height: 0px"
+//               ></td>
+//             </tr>
 
-            <tr>
-              <td height="41" class="em_height">&nbsp;</td>
-            </tr>
+//             <tr>
+//               <td height="41" class="em_height">&nbsp;</td>
+//             </tr>
 
-            <tr>
-              <td
-                style="
-                  font-family: 'Open Sans', Arial, sans-serif;
-                  font-size: 15px;
-                  line-height: 22px;
-                  color: #000000;
-                "
-              >
-                Saludos,<br />
-                <br />
-                Informamos que encontramos una palabra clave en el sitio web de <a href="${scrapingUrl}" style="color: #000000; font-weight: bold">SEACE</a>
-                <ul>
-                  <li>Palabra: <strong>${palabra}</strong></li>
-                  <li>Descripción: <strong>${JSON.stringify(registro.Descripcion_Objetivo)}</strong></li>
-                  <li>Fecha: <strong>${JSON.stringify(registro.Fecha_Publicacion)}</strong></li>
-                </ul>
-                Este mensaje se envía automáticamente, no se requiere ninguna acción.<br /> 
-              </td>
-            </tr>
+//             <tr>
+//               <td
+//                 style="
+//                   font-family: 'Open Sans', Arial, sans-serif;
+//                   font-size: 15px;
+//                   line-height: 22px;
+//                   color: #000000;
+//                 "
+//               >
+//                 Saludos,<br />
+//                 <br />
+//                 Informamos que encontramos una palabra clave en el sitio web de <a href="${scrapingUrl}" style="color: #000000; font-weight: bold">SEACE</a>
+//                 <ul>
+//                   <li>Palabra: <strong>${palabra}</strong></li>
+//                   <li>Descripción: <strong>${JSON.stringify(registro.Descripcion_Objetivo)}</strong></li>
+//                   <li>Fecha: <strong>${JSON.stringify(registro.Fecha_Publicacion)}</strong></li>
+//                 </ul>
+//                 Este mensaje se envía automáticamente, no se requiere ninguna acción.<br /> 
+//               </td>
+//             </tr>
 
-            <tr>
-              <td height="41" class="em_height">&nbsp;</td>
-            </tr>
+//             <tr>
+//               <td height="41" class="em_height">&nbsp;</td>
+//             </tr>
 
-            <tr>
-              <td
-                height="1"
-                bgcolor="#d8e4f0"
-                style="font-size: 0px; line-height: 0px"
-              ></td>
-            </tr>
-          </table>
-        </td>
-      </tr>
+//             <tr>
+//               <td
+//                 height="1"
+//                 bgcolor="#d8e4f0"
+//                 style="font-size: 0px; line-height: 0px"
+//               ></td>
+//             </tr>
+//           </table>
+//         </td>
+//       </tr>
 
-      <tr>
-        <td align="center" valign="top" bgcolor="#0000" class="em_aside">
-          <table
-            width="600"
-            cellpadding="0"
-            cellspacing="0"
-            border="0"
-            align="center"
-            class="em_main_table"
-            style="table-layout: fixed"
-          >
-            <tr>
-              <td height="10" class="em_height"></td>
-            </tr>
-            <tr>
-              <td
-                align="center"
-                style="
-                  font-family: 'Open Sans', Arial, sans-serif;
-                  font-size: 12px;
-                  line-height: 18px;
-                  color: #a0a1a1;
-                  text-transform: uppercase;
-                "
-              >
-                Gmedia © 2024. Todos los derechos reservados.
-                <span style="text-decoration: underline"> </span>
-              </td>
-            </tr>
-            <tr>
-              <td height="10" class="em_height"></td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>`
-  };
+//       <tr>
+//         <td align="center" valign="top" bgcolor="#0000" class="em_aside">
+//           <table
+//             width="600"
+//             cellpadding="0"
+//             cellspacing="0"
+//             border="0"
+//             align="center"
+//             class="em_main_table"
+//             style="table-layout: fixed"
+//           >
+//             <tr>
+//               <td height="10" class="em_height"></td>
+//             </tr>
+//             <tr>
+//               <td
+//                 align="center"
+//                 style="
+//                   font-family: 'Open Sans', Arial, sans-serif;
+//                   font-size: 12px;
+//                   line-height: 18px;
+//                   color: #a0a1a1;
+//                   text-transform: uppercase;
+//                 "
+//               >
+//                 Gmedia © 2024. Todos los derechos reservados.
+//                 <span style="text-decoration: underline"> </span>
+//               </td>
+//             </tr>
+//             <tr>
+//               <td height="10" class="em_height"></td>
+//             </tr>
+//           </table>
+//         </td>
+//       </tr>
+//     </table>
+//   </body>`
+//   };
 
   /**
    * Enviando el correo de alerta
    */
-  try {
-    await transport.sendMail(mailOptions);
-    console.log('📨 Correo enviado');
-    await CorreosEnviados.create({
-      nomenclatura: registro.Nomenclatura,
-      palabra,
-      tipo,
-    });
-  } catch (error) {
-    console.error('❌ Error al enviar el correo:', error);
-  }
-}
+//   try {
+//     await transport.sendMail(mailOptions);
+//     console.log('📨 Correo enviado');
+//     await CorreosEnviados.create({
+//       nomenclatura: registro.Nomenclatura,
+//       palabra,
+//       tipo,
+//     });
+//   } catch (error) {
+//     console.error('❌ Error al enviar el correo:', error);
+//   }
+// }
 
 /** 
  * Función para buscar las palabras claves en los registros 
  */
-async function buscarPalabrasClave(registros) {
-  for (const registro of registros) {
+// async function buscarPalabrasClave(registros) {
+//   for (const registro of registros) {
 
-    const palabraEncontradaObjetivo = keywordsObjetivo.find(keyword =>
-      registro.Descripcion_Objetivo.includes(keyword)
-    );
+//     const palabraEncontradaObjetivo = keywordsObjetivo.find(keyword =>
+//       registro.Descripcion_Objetivo.includes(keyword)
+//     );
 
-    if (palabraEncontradaObjetivo) {
-      console.log(`🔹 Se encontró "${palabraEncontradaObjetivo}" en Descripcion_Objetivo: ${registro.Descripcion_Objetivo}`);
-      await enviarCorreo('Descripcion_Objetivo', palabraEncontradaObjetivo, registro);
-    }
-  }
-}
+//     if (palabraEncontradaObjetivo) {
+//       console.log(`🔹 Se encontró "${palabraEncontradaObjetivo}" en Descripcion_Objetivo: ${registro.Descripcion_Objetivo}`);
+//       await enviarCorreo('Descripcion_Objetivo', palabraEncontradaObjetivo, registro);
+//     }
+//   }
+// }
 
 /**
  * Función principal para realizar el scraping
