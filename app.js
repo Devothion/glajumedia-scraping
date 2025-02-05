@@ -331,84 +331,107 @@ async function buscarPalabrasClave(registros) {
 /**
  * Función principal para realizar el scraping
  */
-(async () => {
-  const browser = await puppeteer.launch({
-    executablePath: '/snap/bin/chromium', 
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'] 
-  });
-  const page = await browser.newPage();
+// (async () => {
+//   const browser = await puppeteer.launch({
+//     executablePath: 'C:\\Users\\JULIO CESAR\\Desktop\\project-scraping\\browser\\Application\\msedge.exe', 
+//     headless: true,
+//     args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+//   });
+//   const page = await browser.newPage();
 
-  page.on('console', (msg) => console.log('PAGE LOG:', msg.text()));
+//   page.on('console', (msg) => console.log('PAGE LOG:', msg.text()));
 
-  const url = scrapingUrl;
-  await page.goto(url, { waitUntil: 'networkidle2' });
+//   const url = scrapingUrl;
+//   await page.goto(url, { waitUntil: 'networkidle2' });
 
-  try {
-    console.log('🕵️‍♂️ Iniciando la extracción de datos...');
+//   try {
+//     console.log('🕵️‍♂️ Iniciando la extracción de datos...');
 
-    // Esperar a que cargue el filtro de años
-    await page.waitForSelector('select#tbBuscador\\:idFormBuscarProceso\\:anioConvocatoria_input'); 
+//     // Esperar a que cargue el filtro de años
+//     await page.waitForSelector('select#tbBuscador\\:idFormBuscarProceso\\:anioConvocatoria_input'); 
 
-    // Cambiar el año en el filtro
-    await page.select('select#tbBuscador\\:idFormBuscarProceso\\:anioConvocatoria_input', '2025'); 
+//     // Cambiar el año en el filtro
+//     await page.select('select#tbBuscador\\:idFormBuscarProceso\\:anioConvocatoria_input', '2025'); 
 
-    // Simular clic en el botón de búsqueda si es necesario
-    await page.click('button#tbBuscador\\:idFormBuscarProceso\\:btnBuscarSelToken');
+//     // Simular clic en el botón de búsqueda si es necesario
+//     await page.click('button#tbBuscador\\:idFormBuscarProceso\\:btnBuscarSelToken');
     
-    // Esperar a que aparezca el selector de paginación
-    await page.waitForSelector('select.ui-paginator-rpp-options');
+//     // Esperar a que aparezca el selector de paginación
+//     await page.waitForSelector('select.ui-paginator-rpp-options');
 
-    // Seleccionar 20 entradas en el select
-    await page.select('select.ui-paginator-rpp-options', '20');
+//     // Seleccionar 20 entradas en el select
+//     await page.select('select.ui-paginator-rpp-options', '20');
 
-    // Esperar a que se actualice la tabla
-    await page.waitForSelector('div.ui-datatable-tablewrapper > table > tbody > tr:not(.ui-datatable-empty-message)');
+//     // Esperar a que se actualice la tabla
+//     await page.waitForSelector('div.ui-datatable-tablewrapper > table > tbody > tr:not(.ui-datatable-empty-message)');
 
-    // Extraer datos de la tabla
-    const tableData = await page.evaluate(() => {
-      const rows = Array.from(document.querySelectorAll('div.ui-datatable-tablewrapper > table > tbody > tr'));
-      return rows.map(row => {
-        const cells = Array.from(row.querySelectorAll('td'));
+//     // Extraer datos de la tabla
+//     const tableData = await page.evaluate(() => {
+//       const rows = Array.from(document.querySelectorAll('div.ui-datatable-tablewrapper > table > tbody > tr'));
+//       return rows.map(row => {
+//         const cells = Array.from(row.querySelectorAll('td'));
 
-        return {
-            Nombre_Entidad: cells[1]?.textContent.trim() || '',
-            Fecha_Publicacion: cells[2]?.textContent.trim() || '',
-            Nomenclatura: cells[3]?.textContent.trim() || '',
-            Reiniciado_Desde: cells[4]?.textContent.trim() || '',
-            Objeto_Contratacion: cells[5]?.textContent.trim() || '',
-            Descripcion_Objetivo: cells[6]?.textContent.trim() || '',
-            Codigo_SNIP: cells[7]?.textContent.trim() || '',
-            Codigo_Unico: cells[8]?.textContent.trim() || '',
-            Valor_Re_Es: cells[9]?.textContent.trim() || '',
-            Moneda: cells[10]?.textContent.trim() || '',
-            SEACE: cells[11]?.textContent.trim() || ''
-        };
-      });
+//         return {
+//             Nombre_Entidad: cells[1]?.textContent.trim() || '',
+//             Fecha_Publicacion: cells[2]?.textContent.trim() || '',
+//             Nomenclatura: cells[3]?.textContent.trim() || '',
+//             Reiniciado_Desde: cells[4]?.textContent.trim() || '',
+//             Objeto_Contratacion: cells[5]?.textContent.trim() || '',
+//             Descripcion_Objetivo: cells[6]?.textContent.trim() || '',
+//             Codigo_SNIP: cells[7]?.textContent.trim() || '',
+//             Codigo_Unico: cells[8]?.textContent.trim() || '',
+//             Valor_Re_Es: cells[9]?.textContent.trim() || '',
+//             Moneda: cells[10]?.textContent.trim() || '',
+//             SEACE: cells[11]?.textContent.trim() || ''
+//         };
+//       });
+//     });
+
+//     if (tableData.length === 0) {
+//         console.log('❌ No se encontraron datos en la tabla.');
+//         return;
+//     } 
+
+//     buscarPalabrasClave(tableData);
+
+//     const nomenclaturasGuardadas = new Set((await Datos.findAll({ attributes: ["Nomenclatura"] })).map((r) => r.Nomenclatura));
+
+//     const newRecords = tableData.filter((datos) => datos.Nomenclatura && !nomenclaturasGuardadas.has(datos.Nomenclatura));
+
+//     if (newRecords.length > 0) {
+//       console.log(`✅ Guardando ${newRecords.length} nuevos registros.`);
+//       await Datos.bulkCreate(newRecords);
+//     } else {
+//       console.log("⏩ No hay registros nuevos.");
+//     }
+    
+
+//   } catch (error) {
+//     console.error('❌ Error:', error.message);
+//   } finally {
+//     await browser.close();
+//   }
+// })();
+
+/**
+ * Función de prueba de conexión con navegador
+ */
+(async () => {
+  try {
+    const browser = await puppeteer.launch({
+      executablePath: '/usr/bin/chromium-browser',
+      headless: true, 
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
-    if (tableData.length === 0) {
-        console.log('❌ No se encontraron datos en la tabla.');
-        return;
-    } 
+    const page = await browser.newPage();
+    await page.goto('https://www.google.com');
 
-    buscarPalabrasClave(tableData);
+    const title = await page.title();
+    console.log(`Título de la página: ${title}`);
 
-    const nomenclaturasGuardadas = new Set((await Datos.findAll({ attributes: ["Nomenclatura"] })).map((r) => r.Nomenclatura));
-
-    const newRecords = tableData.filter((datos) => datos.Nomenclatura && !nomenclaturasGuardadas.has(datos.Nomenclatura));
-
-    if (newRecords.length > 0) {
-      console.log(`✅ Guardando ${newRecords.length} nuevos registros.`);
-      await Datos.bulkCreate(newRecords);
-    } else {
-      console.log("⏩ No hay registros nuevos.");
-    }
-    
-
-  } catch (error) {
-    console.error('❌ Error:', error.message);
-  } finally {
     await browser.close();
+  } catch (error) {
+    console.error('Error al lanzar Puppeteer:', error);
   }
 })();
