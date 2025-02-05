@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const { Datos, CorreosEnviados } = require('./database/models');
 const nodemailer = require('nodemailer');
 
@@ -332,7 +332,11 @@ async function buscarPalabrasClave(registros) {
  * Función principal para realizar el scraping
  */
 (async () => {
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({
+    executablePath: '/snap/bin/chromium', 
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+  });
   const page = await browser.newPage();
 
   const url = scrapingUrl;
